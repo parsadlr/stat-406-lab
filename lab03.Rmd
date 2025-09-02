@@ -1,0 +1,156 @@
+---
+title: "Lab 03 - Lasso"
+author: "[Your Name Here]"
+date: "Due 03 October at 11pm"
+output:
+  bookdown::pdf_document2:
+    includes:
+      in_header: preamble.tex
+    number_sections: false
+    toc: FALSE
+---
+
+# Brief description
+
+This week, we will continue to work on the prostate cancer data. Recall that the 9th variable, `lpsa`, is the
+response while the rest are potential predictors. the
+variable `lpsa` in the 9th column is the response while the rest are
+potential predictors. The data set is available in the `{ElemStatLearn}` package and a
+description can be found at
+<http://statweb.stanford.edu/~tibs/ElemStatLearn/datasets/prostate.info.txt>
+
+
+# Questions
+
+Recall that the ridge regression imposes an $L_{2}$ penalty on the
+magnitudes of the coefficients (i.e., the
+$\lambda\boldsymbol{\beta}^{\intercal}\boldsymbol{\beta}$ term in the
+objective function). The LASSO, on the other hand, uses an $L_{1}$
+penalty instead. For centred response $y_{1},\ldots,y_{n}$ and vector of
+predictors $\boldsymbol{x}_{1},\ldots,\boldsymbol{x}_{n}$, we have
+
+$$
+\hat{\boldsymbol{\beta}}=\underset{\boldsymbol{\beta}}{\arg\min}\left[\sum_{i=1}^{n}(y_{i}-\boldsymbol{x}_{i}^{\intercal}\boldsymbol{\beta})^{2}+\lambda\sum_{j=1}^{p}|\beta_{j}|\right],
+$$
+for $\boldsymbol{\beta}=(\beta_{1},\ldots,\beta_{p})^{\intercal}$ and
+some penalty $\lambda$.
+
+
+
+**Q1** Give one reason why you might use LASSO instead of ridge regression.
+
+::: {.solbox data-latex=""}
+Your answer
+:::
+
+
+Like last time, read the data into `R` using the following command (with
+correct file path and name):
+
+```{r, message=FALSE}
+data(prostate, package = "ElemStatLearn")
+library(tidyverse)
+prostate <- prostate |> select(-train)
+library(glmnet)
+```
+
+Again, we use the function `glmnet()` in the package of the same name.
+Read the
+documentation of the function by typing `?glmnet` in the console. We are
+interested in these three arguments of the function: `x`, `y`, `alpha`.
+
+**Q2** Fit the LASSO using the `glmnet()` function. Write down
+the code you used for the fitting (just the line involving the
+`glmnet()` function).
+
+**Hint**: Recall the `as.matrix` function you used on the design
+matrix last time.
+
+::: {.solbox data-latex=""}
+```{r}
+# your code
+```
+:::
+
+
+**Q3** Inspect how the coefficients evolve as the penalty is
+relaxed by plotting the fitted object using the `plot()` function.
+Write down the first three variables that enter the model.
+
+**Hint**: `plot()` is a method. When invoked, it calls the
+plotting function that corresponds to the class of the object
+supplied. The relevant documentation in this case is
+`?plot.glmnet`.
+
+
+::: {.solbox data-latex=""}
+```{r}
+# your code
+```
+:::
+
+
+Now, we choose the optimal value of $\lambda$ via cross validation.
+Recall how you used `cv.glmnet()` last time with the `nfolds` argument in
+addition to those above (check the documentation of this function).
+
+Carry out a 5-fold cross validation. Run
+`set.seed(400)` **immediately before** the `cv.glmnet()`
+function to obtain reproducible results.
+
+**Q4** What is the value of $\lambda$ that gives the smallest mean squared error?
+
+::: {.solbox data-latex=""}
+```{r}
+# your code
+```
+:::
+
+
+**Q5** How many predictors are in the model with this value of $\lambda$?
+
+::: {.solbox data-latex=""}
+```{r}
+# your code
+```
+
+Your answer
+:::
+
+
+We compare this and the optimal ridge regression model obtained last
+time. For design matrix $\boldsymbol{X}$ (without intercept) with
+singular value decomposition
+$\boldsymbol{X}=\boldsymbol{U}\boldsymbol{\Lambda}\boldsymbol{V}$, where
+$\boldsymbol{\Lambda}$ is a diagonal matrix of singular values
+$d_{1},\ldots,d_{p}$, the degrees of freedom  of the
+ridge regression model is
+$$\mbox{df}=\sum_{i=1}^{p}\left(\frac{d_{i}^{2}}{d_{i}^{2}+\lambda}\right),$$
+where $\lambda$ is the penalty.
+
+**Q6** The optimal ridge regression model (from Lab 2) has
+$\lambda=e^{-2.4}$. What is the $df$ of this model?
+
+**Hint**: Centre the $\boldsymbol{X}$ matrix first. You will find
+the `svd` function useful. Make sure there's an intercept!!
+
+
+::: {.solbox data-latex=""}
+```{r}
+# your code
+```
+
+Your answer
+:::
+
+
+**Q7**
+From the results in **Q5** and **Q6**, which model is
+more complex based on their $df$'s (note that for lasso, this is only an
+unbiased estimate of $df$)?
+
+::: {.solbox data-latex=""}
+Your answer
+:::
+
+

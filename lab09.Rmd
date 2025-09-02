@@ -1,0 +1,152 @@
+---
+title: "Lab 09 - Boosting"
+author: "[Your Name Here]"
+date: "Due 28 November at 11pm"
+output:
+  bookdown::pdf_document2:
+    includes:
+      in_header: preamble.tex
+    number_sections: false
+    toc: FALSE
+---
+
+
+# Questions
+
+
+In this lab we explore the power of the boosting algorithm and also try
+to find out when this method could fail.
+
+## Boosting with a "good" data set
+
+Load `goodboost` in the course package. We will try to predict `class`
+using the `x` and `y` coordinates. You will need the
+`{adabag}` package for the functions below.
+
+```{r setup, message=FALSE, warning=FALSE}
+library(adabag)
+library(ggplot2)
+library(Stat406)
+data("goodboost")
+data("badboost")
+goodboost <- as.data.frame(goodboost) # boosting() won't work with tibbles...
+badboost <- as.data.frame(badboost)
+library(ggplot2)
+theme_set(theme_bw())
+ggplot(goodboost, aes(x, y, colour = class)) +
+  geom_point() + scale_colour_viridis_d()
+```
+
+We set the classifiers $T_{j}$ to be **stumps** --- a stump
+is a tree with only one split. To specify this, run the following line:
+
+```{r}
+stump <- rpart.control(cp = -1, maxdepth = 1, minsplit = 0, xval = 0)
+```
+
+**Q1** Using the function `boosting()`, perform boosting on this data set with
+150 trees (iterations). What is the misclassification error rate? Display the confusion matrix.
+
+**Important notes --- read before you fit!**
+
+1. In this part set `boo = FALSE` so that the original sample is used in all trees.
+1. Make use of the `control` parameter to incorporate the `stump` settings you specified above.
+1. Run the line `set.seed(123)` right before running the boosting algorithm in R.
+
+::: {.solbox data-latex=""}
+```{r}
+# your code
+```
+
+Your answer
+:::
+
+
+**Q2** Identify and plot the misclassified observations for the
+boosting algorithm up to the $i$th tree, where $i=1, 10, 25,50,100$ and
+$150$. You may use the provided `plot_boost()` function to generate your plots. **In the output, include the plot for $i=150$ only.**
+
+**Hint**: The `predict()` function in this package requires the
+vector of responses (as a factor) to be present. Which parameter of `predict`
+controls the number of iterations to use?
+
+```{r plot-boost}
+#'  Plot the results of a fitted boosting object
+#'
+#'  This function plots the class and classification error of a fitted boosting
+#'  object to the boston housing data
+#'
+#'  @param boost fitted boosting object
+#'  @param dat data used to fit the boosting object
+#'  @param ntree the number of trees of the boosting object to be used in the prediction
+plot_boost <- function(boost, dat, ntree = length(boost$tree)) {
+  pr <- predict(boost, newdata = dat, newmfinal = ntree)
+  dat$pred <- pr$class
+  dat$error <- factor(ifelse(dat$pred == dat$class, "correct", "wrong"),
+                      levels = c("correct", "wrong"))
+  ggplot(data = dat) +
+    geom_point(aes(x, y, colour = pred, shape = error), size = 2) +
+    scale_shape_manual(values = c(16, 4), drop = FALSE) +
+    scale_colour_viridis_d() +
+    theme_bw()
+}
+```
+
+
+::: {.solbox data-latex=""}
+```{r}
+# your code
+```
+:::
+
+
+## Boosting with a "bad" data set
+
+
+**Q3** Repeat **Q1** and **Q2** using the
+`bad_boost` data. What is the misclassification error rate? Does
+increasing the number of iterations help? **Be sure to set the seed again.**
+
+::: {.solbox data-latex=""}
+```{r}
+# your code
+```
+
+Your answer
+:::
+
+
+
+**Q4** Now allow the trees to grow a bit deeper by setting
+`maxdepth = 2` in the `rpart.control` command while keeping other
+parameters fixed at those in **Q1**. Let the algorithm iterate for
+100 times. What do you observe?
+
+::: {.solbox data-latex=""}
+```{r}
+# your code
+```
+
+Your answer
+:::
+
+
+
+## What's the difference?
+
+The response variable in the data set `badboost` was
+generated through the following relationship:
+$$\frac{1}{2}\log\left(\frac{\mathbb{P}\left(Y=a\ |\ \boldsymbol{X}=\boldsymbol{x}\right)}{1-\mathbb{P}\left(Y=a\ |\ \boldsymbol{X}=\boldsymbol{x}\right)}\right)=\left[(x_{2}-2)_{+}-(x_{1}+1)_{+}\right](1-x_{1}+x_{2})$$
+where $(z)_{+}=\max(z,0)$. Recall that we attempt to estimate
+$$\frac{1}{2}\log\left(\frac{\mathbb{P}\left(Y=a\ |\ \boldsymbol{X}=\boldsymbol{x}\right)}{1-\mathbb{P}\left(Y=a\ |\ \boldsymbol{X}=\boldsymbol{x}\right)}\right)$$
+using a **linear combination** of the individual classifiers
+$T_{j}(\boldsymbol{x})$ in boosting.
+
+**Q5** We observed that boosting stumps yields good results on
+the first data set but not the second. Why is it so?
+
+::: {.solbox data-latex=""}
+Your answer
+:::
+
+

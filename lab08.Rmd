@@ -1,0 +1,146 @@
+---
+title: "Lab 08 - Random Forests and Bagging"
+author: "[Your Name Here]"
+date: "Due 21 November at 11pm"
+output:
+  bookdown::pdf_document2:
+    includes:
+      in_header: preamble.tex
+    number_sections: false
+    toc: FALSE
+---
+
+# Brief description
+
+In this lab, we will perform Random Forests and Bagging on the `popmusic`
+data. See `?popmusic` for information on the available predictors. The
+response is `artist`. We're trying to classify the artist using some information
+about the individual songs.
+
+
+```{r setup, warning=FALSE, message=FALSE}
+library(randomForest)
+library(tidyverse)
+library(Stat406)
+theme_set(theme_bw())
+```
+
+# Questions
+
+A classification tree can be sensitive to the input data. Bagging or
+*bootstrap aggregation* tries to produce more stable predictions by
+repeatedly fitting trees to bootstrapped samples (i.e., sampling from
+the original data set with replacement). The final prediction is the
+majority class based on the $K$ trees, where $K$ is the number of
+bootstrap samples trained. By
+making a single change to bagging --- that in each split of the tree we
+restrict the algorithm to choosing among only $m$ randomly selected
+features (smaller than $p$, the total number of features), we obtain the
+random forest procedure that reduces the correlation among the trees.
+
+We use the `randomForest()` function in the package of the same name to
+fit a classification tree. Use the following lines to fit a random
+forest to the training data with 1,501 trees:
+
+**Q1** How many features are randomly selected as possible
+candidates in each split (i.e., the value of $m$ in the above
+description)? **Hint**: See `?randomForest()`.
+
+
+::: {.solbox data-latex=""}
+```{r}
+# your code
+```
+
+Your answer
+:::
+
+
+
+**Q2** Plot the fitted object. Do you think using 1,501 trees
+    is sufficient? Why?
+
+::: {.solbox data-latex=""}
+```{r}
+# your code
+```
+
+Your answer
+:::
+
+
+
+**Q3** Using the `varImpPlot()` function, write down the 3 most
+important variables in terms of their contribution to the decrease
+in homogeneity.
+
+::: {.solbox data-latex=""}
+```{r}
+# your code
+```
+
+Your answer
+:::
+
+
+**Q4** What is the out-of-bag error rate for the random forest fit in **Q1**?
+
+
+::: {.solbox data-latex=""}
+Your answer
+:::
+
+
+**Q5** What is the value of $m$ (number of candidate variables
+in each split) that corresponds to bagging? Using this value of $m$,
+perform bagging by including also the argument `mtry = m` in
+`randomForest()`. What is the OOB error using bagging?
+
+**[Again, make sure you run `set.seed(200)` before running `randomForest()`.]**
+
+::: {.solbox data-latex=""}
+```{r}
+# your code
+```
+
+Your answer
+:::
+
+
+**Q6** Obtain the misclassification rate based on the test
+set, using the random forest fit in **Q1**. Do you expect this value
+to be similar to the OOB error rate? Why?
+
+
+::: {.solbox data-latex=""}
+```{r}
+# your code
+```
+
+Your answer
+:::
+
+
+
+**Q7** In the random forest fitted in **Q1**, how many
+bootstrapped samples (out of 1,501) do **not** contain the third
+observation? How many of these trees predict this observation (which
+is OOB to them) as `"Radiohead"`?
+
+**Hint**: You can obtain this information from the fitted `randomForest` object.
+
+::: {.solbox data-latex=""}
+Your answer
+:::
+
+
+
+**Q8** Notice that the random forest OOB error is slightly lower than
+the bagging OOB error for this data set. Provide two
+advantages of random forests over bagging for decision trees.
+
+
+::: {.solbox data-latex=""}
+Your answer
+:::
+

@@ -1,0 +1,169 @@
+---
+title: "Lab 07 - PCA"
+author: "[Your Name Here]"
+date: "Due 07 November at 11pm"
+output:
+  bookdown::pdf_document2:
+    includes:
+      in_header: preamble.tex
+    number_sections: false
+    toc: FALSE
+---
+
+This lab is based on material from Chapter 15 of Prof. Cosma Shalizi's
+book [_Advanced Data Analysis from an Elementary Point of
+View_](https://www.stat.cmu.edu/~cshalizi/ADAfaEPoV/).
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(Stat406)
+theme_set(theme_bw())
+```
+
+In the era before large language models,
+information retrieval systems (like search engines) and people doing
+computational text analysis often represented documents as what are called **bags
+of words**: documents are represented as vectors, where each component counts
+how many times each word in the dictionary appears in the text. This throws away
+information about word order, but gives us something we can work with
+mathematically. Part of the representation of one document might look like:
+
+```{r}
+data.frame(nyt_raw[1:6, 2:11])
+```
+
+and so on through to "zebra", "zoology", "zygote", etc. to the end of the
+dictionary. These vectors are very, very large! At least in English and similar
+languages, these bag-of-word vectors have three outstanding properties:
+
+1. most words don't appear in most documents, so these representations are
+**sparse** containing many 0's.
+1. a few words appear often in most documents (like "a", "an", "the", "of",
+etc.). These don't provide much information about the content of an individual
+document.
+1. words tend to come in bunches that appear together, being highly correlated
+with some words, but uncorrelated with most.
+
+Taken together, this suggests that we don't need to keep around all the counts
+of all the words from all the documents, but that we can maintain most of the
+relevant information by **compressing** the representation, projecting onto
+a small number of variables. This is exactly what PCA does.
+
+The `nyt_raw` dataset contains some news stories taken from the New York
+Times Annotated Corpus (Sandhaus, 2008), which consists of about 1.8 million
+stories from the Times, from 1987 to 2007, which have been hand-annotated by
+actual human beings with standardized machine-readable information about their
+contents. From this corpus, Prof. Shalizi has randomly selected 57 stories about
+art and 45 stories about music, and turned them into a bag-of-words data frame,
+one row per story, one column per word; plus an indicator in the first column of
+whether the story is about art or music. We'll use this indicator to evaluate
+how well our projections are working, but one could of course use it to train
+a classifier instead.
+
+There are actually 2 datasets in the course package, the first contains the
+counts of each word (as illustrated above), while the second, `nyt_tfidf`
+has been
+renormalized using Term-Frequency, Inverse Document-Frequency weights (TF-IDF
+in this context). This maintains the sparsity, while avoiding the need for
+scaling. And just as importantly, it deemphasizes high-frequency words that
+appear in most documents, while emphasizing distinctive words that appear
+frequently in a few documents.
+
+**Q1** Each of the datasets mentioned above occupy about
+`r format(object.size(nyt_raw))` of memory on your machine. While they are both
+"sparse", in that many entries are zero, as described above, neither is stored
+as a sparse object. True sparse objects store only the nonzero entries. For
+example, if stored as a sparse matrix, these would occupy only about 1/8 the
+memory. Suppose we actually had access to the entire corpus. This would be
+1.8 million articles and about 50,000 words. Now imagine "centering and scaling"
+this matrix (as usually recommended before performing PCA). Is this a good
+idea?
+
+::: {.solbox data-latex=""}
+Your answer
+:::
+
+
+**Q2** Perform PCA on `nyt_raw`. You can go ahead and center this data (as
+done by default).
+Which 20 words have the largest magnitude
+loadings onto the first principal component?  Explain why. What happens if you
+scale the data?
+
+
+::: {.solbox data-latex=""}
+```{r}
+# your code
+```
+
+Your answer
+:::
+
+
+
+**Q3** We want to perform PCA on `nyt_tfidf`. Be sure not to centre (see `?prcomp`).
+If you try to scale inside of `prcomp()` you'll get an error like:
+```
+Error in prcomp.default(...) :
+  cannot rescale a constant/zero column to unit variance
+```
+Which words are "constant" (have 0 variance)? Why?
+
+::: {.solbox data-latex=""}
+```{r}
+# your code
+```
+
+Your answer
+:::
+
+
+
+**Q4** Remove the offensive columns and perform PCA on `nyt_tfidf` without and
+then with scaling.
+Which 20 words have the largest magnitude loadings onto the first principal component in each case? Does scaling help
+
+::: {.solbox data-latex=""}
+```{r}
+# your code
+```
+
+Your answer
+:::
+
+
+**Q5** If your goal is to separate music articles from art articles, scaling
+may make this harder.
+Explain why we should scale our data generally.
+Should we _always_ scale the data?
+
+::: {.solbox data-latex=""}
+Your answer
+:::
+
+
+**Q6** Let's proceed with the PCA on `nyt_tfidf` _without_ scaling. Look
+at the 20 most positive and 20 most negative words on the first component.
+What do you notice? What about the second component?
+
+::: {.solbox data-latex=""}
+```{r}
+# your code
+```
+
+Your answer
+:::
+
+
+**Q7** Plot the projections of the articles onto PC2 against the projections
+onto PC1 and indicate the musical / art articles using
+shape or colour. What do you notice?
+
+::: {.solbox data-latex=""}
+```{r}
+# your code
+```
+
+Your answer
+:::
+

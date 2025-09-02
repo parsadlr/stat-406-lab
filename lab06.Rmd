@@ -1,0 +1,177 @@
+---
+title: "Lab 06 - Generative Models"
+author: "[Your Name Here]"
+date: "Due 31 October at 11pm"
+output:
+  bookdown::pdf_document2:
+    includes:
+      in_header: preamble.tex
+    number_sections: false
+    toc: FALSE
+---
+
+
+In this lab we will continue our investigation of the `penguins` data set
+from the previous lab.
+
+Here, we'll reduce the problem down to a binary classification problem
+by getting rid of the Chinstrap species.
+
+```{r data-processing, message=FALSE, warning=FALSE}
+library(MASS)
+library(tidyverse)
+theme_set(theme_bw())
+data("penguins", package = "palmerpenguins")
+penguins <- penguins |>
+  dplyr::select(species, bill_length_mm, flipper_length_mm) |>
+  filter(species != "Chinstrap")
+```
+
+- Previously, we explored this dataset using classification trees, which are a **discriminative model**.
+- We will now explore this same dataset using a **generative model**:
+
+
+# A Simple Generative Model: Linear Discriminant Analysis (LDA)
+
+Let $Y \in \{ "Adelie", "Gentoo" \}$ be the species response variable,
+and let $X \in \mathbb{R}^2$ be the vector of bill length/flipper length predictors.
+The (generative) family of distributions that we will consider are:
+
+$$
+P(X=x|Y=y) = \mathcal{N}(x; \mu_y, \Sigma), \qquad \mu_y \in \mathbb{R}^2, \quad \Sigma \in \mathbb{R}^{2 \times 2}.
+$$
+
+In other words, we assume that all predictors $X$ for a given species $Y=y$ are normally distributed.
+This family of distributions is defined by the following parameters:
+- $\mu_\mathrm{Adelie}, \mu_\mathrm{Gentoo} \in \mathbb{R}^2$:
+ (the mean of the Normal distribution, which is *specific* to each species), and
+- $\Sigma \in \mathbb{R}^{2 \times 2}$: (the covariance of Normal distribution, which is *shared* across all species).
+
+
+## Q1: Data Simulation
+
+Before we fit this model to the penguins data, let's simulate some data from a distribution in this model.
+Assume that the parameters of the distribution are:
+
+- $\mu_\mathrm{Adelie} = (180, 40)$
+- $\mu_\mathrm{Gentoo} = (210, 45)$
+- $\Sigma = \begin{pmatrix} 100 & 5 \\ 5 & 10 \end{pmatrix}$
+
+Draw 200 representative "penguins" of each species from this distribution,
+and plot the resulting data points in a scatterplot, colored by species.
+
+::: {.callout-info}
+See `? mvrnorm` for sampling from multivariate normal distributions.
+:::
+
+::: {.solbox data-latex=""}
+```{r simulation}
+# your code
+```
+:::
+
+
+**Q2** Now plot the penguins data.
+Even though the parameters from the previous question probably don't fit the data,
+do you think this family of generative distributions will describe the penguins data well?
+
+::: {.solbox data-latex=""}
+```{r penguins-plot}
+# your code
+```
+
+Your answer
+:::
+
+
+
+**Q3**
+Let's say our goal is still prediction;
+i.e. if we observe a new penguin $X = \{ \mathrm{flipper\_len, bill\_len} \}$,
+we are interested in predicting its **most probable** species
+$Y \in \{ "Adelie", "Gentoo" \}$.
+
+Given a fit LDA model $P(X=x \mid Y=\mathrm{Adelie}), P(X=x \mid Y = \mathrm{Gentoo})$,
+how would you use this model to predict the species of a new penguin $X=x$?
+What additional information would you need, and how could you estimate it from the training data?
+Answer using equations and 3-4 sentences.
+
+::: {.solbox data-latex=""}
+Your answer
+:::
+
+
+
+**Q4**
+The following code fits an LDA model with maximum likelihood estimation,
+and plots the most probable class predictions
+$\mathrm{argmax}_y P_\mathrm{MLE}(Y = y | X = x)$
+for each point in space.
+
+```{r q2-solution, message = FALSE, warning=FALSE, fig.width=6, fig.height=3}
+ldaobj <- lda(species ~ ., data = penguins)
+fine_grid <- map(penguins[, -1], ~ range(.x, na.rm = TRUE)) |>
+  map(~ seq(.x[1], .x[2], length.out = 100))
+
+fine_grid <- expand_grid(!!!fine_grid)
+fine_grid$pred_class <- predict(ldaobj, newdata = fine_grid)$class
+
+# Plot contours
+ggplot(penguins, aes(flipper_length_mm, bill_length_mm)) +
+  geom_raster(data = fine_grid, aes(fill = pred_class), alpha = .3) +
+  geom_point(aes(colour = species)) +
+  scale_fill_viridis_d() +
+  scale_colour_viridis_d()
+```
+
+Suppose we change the flipper and bill lengths of two
+observations from each class (see the figure for the ones that moved.
+Running LDA on this modified data set yields the
+following predictions at every point in space.
+
+```{r echo = FALSE, warning=FALSE, fig.width=6, fig.height=3}
+extras <- tribble(
+    ~ flipper_length_mm, ~ bill_length_mm, ~ species,
+    172, 59, "Gentoo",
+    173, 58, "Gentoo",
+    171, 52, "Adelie",
+    172, 50, "Adelie",
+)
+penguins_extra <- bind_rows(penguins, extras)
+dump <- c(186, 254, 99, 130)
+penguins_replaced <- penguins_extra[-dump, ]
+ldaobj2 <- lda(species ~ ., data = penguins_replaced)
+fine_grid$pred_class2 <- predict(ldaobj2, newdata = fine_grid)$class
+
+
+ggplot(penguins_extra, aes(flipper_length_mm, bill_length_mm)) +
+  geom_raster(data = fine_grid, aes(fill = pred_class2), alpha = .3) +
+  geom_point(aes(colour = species)) +
+  scale_colour_viridis_d() +
+  scale_fill_viridis_d() +
+  annotate(
+    geom = "segment",
+    arrow = arrow(),
+    color = "orange",
+    x = penguins_extra$flipper_length_mm[dump],
+    y = penguins_extra$bill_length_mm[dump],
+    xend = extras$flipper_length_mm,
+    yend = extras$bill_length_mm)
+```
+
+Note that the **decision boundary** - i.e. the line in $X$-space where the most probable class prediction changes -
+is quite different, even though we've only changed 4 points. Why? (Answer in 2-3 sentences.)
+
+::: {.solbox data-latex=""}
+Your answer
+:::
+
+
+**Q5**: Now let's imagine we had used a discriminative model, like logistic regression, to classify the penguins.
+Do you think this model would have been as sensitive to the change in these few points?
+Answer in 1-2 sentences.
+
+::: {.solbox data-latex=""}
+Your answer
+:::
+

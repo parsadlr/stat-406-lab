@@ -1,0 +1,125 @@
+---
+title: "Lab 04 - Basis Regression"
+author: "[Your Name Here]"
+date: "Due 10 October at 11pm"
+output:
+  bookdown::pdf_document2:
+    includes:
+      in_header: preamble.tex
+    number_sections: false
+    toc: FALSE
+---
+
+# Brief description
+
+
+This week, we will perform spline regression using B-splines. The
+training and test data sets contain the head acceleration
+(`accel`, in *g*) as a function of time (`times`, in ms) after impact in
+a simulated motorcycle accident. The original data set is in the `MASS`
+package. A description can be found by typing `?mcycle`.
+
+Questions
+=========
+
+In spline regression, the number of knots $K$ (i.e. number of basis functions) controls how adaptive the
+regression line is. We will compare three fits with $K=5$, 10 and 20.
+First, read the training data using the following statement:
+
+```{r, message = FALSE}
+library(Stat406)
+library(tidyverse)
+```
+
+Then, create a vector of 5 knots using the following function:
+
+```{r}
+knot_maker <- function(k) quantile(mcycle_train$times, (1:k) / (k + 1))
+```
+Use similar statements to create the vectors for $K=10$ and 20.
+
+::: {.solbox data-latex=""}
+```{r knots}
+k <- c(5, 10, 20)
+knots <- map(k, knot_maker)
+```
+:::
+
+
+**Q1**
+Explain how are the locations of the knots determined.
+Are they equally spaced along the *x*-coordinate?
+
+::: {.solbox data-latex=""}
+Your answer
+:::
+
+
+Fit the cubic splines using the B-spline basis (`bs()` function in package
+`{splines}`) defined by the knots you created above. Refer to the lectures
+on how you can use the `bs()` function inside `lm()`.
+
+**Note 1**: We use cubic splines this time, and thus you do not need to
+specify the `degree` argument.
+
+**Note 2**: You need to fit the three splines separately, each using one
+set of knots created above.
+
+::: {.solbox data-latex=""}
+```{r}
+# your code
+```
+:::
+
+
+**Q2** Plot the resulting fits. Which one would you choose for
+prediction? Explain your choice. **Do not use the test set at this
+point**.
+
+**Hint**: Use the `predict()` function to get fitted values, either on
+the observed times or a sequence of user-specified times.
+
+::: {.solbox data-latex=""}
+```{r}
+# your code
+```
+
+Your answer
+:::
+
+
+**Q3** Now, use the test set to estimate the mean squared
+prediction errors of the three regression models. Which model
+appears to be the best?
+
+::: {.solbox data-latex=""}
+```{r}
+# your code
+```
+
+Your answer
+:::
+
+
+Recall that a smoother is linear if the fitted values can be written as
+$$\hat{\boldsymbol{y}}=\boldsymbol{S}\boldsymbol{y},$$
+where $\boldsymbol{y}$ is the vector of response with fitted values
+$\hat{\boldsymbol{y}}$, and $\boldsymbol{S}$ is a matrix that does not
+depend on $\boldsymbol{y}$. For the linear smoother, the effective degrees of freedom is given by $\mbox{tr}(\boldsymbol{S})$.
+
+**Q4** Are the above smoothing splines linear smoothers?
+
+::: {.solbox data-latex=""}
+Your answer
+:::
+
+
+
+**Q5** Is it possible to obtain the effective degrees of
+freedom for the three splines you have just fitted? If yes, write
+down the answer below. If not, explain why.
+
+::: {.solbox data-latex=""}
+Your answer
+:::
+

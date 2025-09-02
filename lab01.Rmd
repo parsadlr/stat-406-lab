@@ -1,0 +1,126 @@
+---
+title: "Lab 01 - Linear Models, Cross Validation"
+author: "[Your Name Here]"
+date: "Due 19 September at 11pm"
+output:
+  bookdown::pdf_document2:
+    includes:
+      in_header: preamble.tex
+    number_sections: false
+    toc: FALSE
+---
+
+# Instructions
+
+
+
+# Brief description
+
+
+In this lab, we will work on the `prostate` cancer data set.
+The (modified) data set has `r nrow(data("prostate", package="ElemStatLearn"))` observations and `r ncol(data("prostate", package="ElemStatLearn")) - 1` variables; the
+variable `lpsa` in the 9th column is the response while the rest are
+potential predictors. The data set is available in the `{ElemStatLearn}` package and a
+description can be found at
+<http://statweb.stanford.edu/~tibs/ElemStatLearn/datasets/prostate.info.txt>
+
+
+# Questions
+
+Load the data into `R` and remove the `train` column.
+
+```{r, message=FALSE}
+data("prostate", package = "ElemStatLearn")
+library(tidyverse)
+prostate <- prostate |> select(-train)
+```
+
+You can view the first few observations by typing `head(prostate)`. In this
+lab, we are interested in two linear models:
+a. The **[full model]** with all 8 predictors, and
+a. The **[reduced model]** with the 3 predictors most correlated with the response `lpsa`.
+
+## Q1
+
+Which 3 predictors are the most correlated with `lpsa`?
+
+::: {.solbox data-latex=""}
+```{r}
+# your code
+```
+:::
+
+
+## Q2
+
+Without fitting the linear models, can you tell which model fits the data better in the sense of having a smaller residual sum of squares? Why?
+
+::: {.solbox data-latex=""}
+Your answer
+:::
+
+
+Next, we estimate the prediction error using the test set approach as
+well as cross validation. Enter the following command in `R` to generate a random sequence of group indices (group 1, 2 or 3) for the observations.
+
+**Note: Using another random seed, or not using one, or running the
+`sample` command more than once will give you a different sequence than
+the one we will use for marking this worksheet --- make sure you get
+this right**.
+
+```{r}
+set.seed(400)
+gpind <- c(sample(rep(1:3, each = 32)), 1)
+```
+
+The first 6 elements of `gpind` should read `r gpind[1:6]`.
+
+## Q3
+
+Fit the full and reduced models using observations
+**[not]** in group 1, and then obtain predictions for those in
+group 1. What are the mean squared prediction errors for the two
+models?
+
+**Hint**: The reduced model uses the 3 predictors most correlated
+with the response in the training set. Not necessarily the same
+as those above that used _all_ the data.
+
+::: {.solbox data-latex=""}
+```{r}
+# your code
+```
+:::
+
+
+
+## Q4
+
+Does your result in **Q3** contradict with that in **Q2**, and why?
+
+::: {.solbox data-latex=""}
+Your answer
+:::
+
+
+## Q5
+
+Repeat the procedure in **Q3** for groups 2 and 3, so as to perform a 3-fold cross validation. What are the overall mean squared prediction errors for the two models?
+
+::: {.solbox data-latex=""}
+```{r}
+# your code
+```
+:::
+
+
+## Q6
+
+Based on these results, which model has a better
+predictive ability? Suggest one advantage of the $K$-fold cross
+validation ($K>1$) over the leave-one-out cross validation.
+
+::: {.solbox data-latex=""}
+Your answer
+:::
+
