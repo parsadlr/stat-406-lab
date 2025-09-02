@@ -1,0 +1,22 @@
+name: tag-date-time
+on:
+  pull_request:
+    branches: [main, master]
+    types: [opened]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Set current date as env variable
+        run: echo "NOW=$(TZ='America/Vancouver' date)" >> $GITHUB_ENV
+      - uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: 'This PR opened at ${{ env.NOW }}'
+            })
