@@ -119,7 +119,14 @@ In the R code chunk below, fit a linear model to the data and print the estimate
 
 ::: {.solbox data-latex=""}
 ```{r garbage-model-coefs}
-# your code
+library(tibble)
+set.seed(12345)
+dat <- tibble(
+  x1 = rnorm(100),
+  x2 = rnorm(100),
+  y = 2 + 3*x1 - x2 + rnorm(100)
+)
+## fit a model
 ```
 :::
 
