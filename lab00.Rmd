@@ -1,6 +1,6 @@
 ---
 title: "Lab 00 - Git"
-author: "[Your Name Here]"
+author: "Parsa Delavari"
 date: "Due 12 September at 11pm"
 output:
   bookdown::pdf_document2:
@@ -45,7 +45,7 @@ Beginning a new Lab or homework assignment always starts out like this.
 1. You can name your branch anything you like, but I'd suggest `lab00-git` to denote the work that will happen here.
 1. Ensure that "Sync branch with remote" is checked and click "Create".
 1. Now open `lab00-git.Rmd`. You'll see all the instructions you've been looking at there in that document.
-1. Try to click `Knit` or use `Cmd+Shift+K` (`Ctrl+Shift+K` on Windows/Linux). To render the lab to `.pdf`. You should always do this first to make sure everything works.
+1. Try to click `Knit` or use `Cmd+Shift+K` (`Ctrl+Shift+K` on Windows/Linux). To render the lab to `.pdf`.
 1. On the previous line, Delete the last sentence "You should always do this first...". And Save.
 1. Now, looking in the Git panel, you should see `lab00-git.Rmd` and `lab00-git.pdf` with check boxes next to them.
 1. Git "Stages" your changes when you click the check box. Click the box by `lab00-git.Rmd`.
