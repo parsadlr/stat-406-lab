@@ -12,19 +12,11 @@ output:
 
 # Brief description
 
-In this lab, we will perform ridge regression on the prostate cancer
-data set studied last time. Recall that the 9th variable, `lpsa`, is the
-response while the rest are potential predictors. the
-variable `lpsa` in the 9th column is the response while the rest are
-potential predictors. The data set is available in the `{ElemStatLearn}` package and a
-description can be found at
-<http://statweb.stanford.edu/~tibs/ElemStatLearn/datasets/prostate.info.txt>
-
+In this lab, we will perform ridge regression on the prostate cancer data set studied last time. Recall that the 9th variable, `lpsa`, is the response while the rest are potential predictors. the variable `lpsa` in the 9th column is the response while the rest are potential predictors. The data set is available in the `{ElemStatLearn}` package and a description can be found at <http://statweb.stanford.edu/~tibs/ElemStatLearn/datasets/prostate.info.txt>
 
 # Questions
 
-Like last time, read the data into R using the following command (with
-correct file path and name):
+Like last time, read the data into R using the following command (with correct file path and name):
 
 ```{r, message=FALSE, warning=FALSE}
 data(prostate, package = "ElemStatLearn")
@@ -32,145 +24,159 @@ library(tidyverse)
 prostate <- prostate |> select(-train)
 ```
 
-
 ## Q1
 
-What are the coefficients for the predictors `lcavol`,
-`svi` and `lcp` in the full linear regression model? (If you recall,
-these are the three predictors most correlated with the response.)
+What are the coefficients for the predictors `lcavol`, `svi` and `lcp` in the full linear regression model? (If you recall, these are the three predictors most correlated with the response.)
 
 ::: {.solbox data-latex=""}
 ```{r}
-# your code
+# Fit the full model with all predictors
+fit_full <- lm(lpsa ~ ., data = prostate)
+
+# Look at the coefficients
+coef(fit_full)[c("lcavol", "svi", "lcp")]
+
+summary(fit_full)
 ```
 :::
 
-
-
-For responses $y_{1},\ldots,y_{n}$, vector of predictors
-$\boldsymbol{x}_{1},\ldots,\boldsymbol{x}_{n}$ and fixed penalization
-parameter $\lambda$, ridge regression solves the optimization
-problem
-$$\hat{\boldsymbol{\beta}}=\underset{\boldsymbol{\beta}}{\arg\min}\left[\sum_{i=1}^{n}(y_{i}-\boldsymbol{x}_{i}^{\intercal}\boldsymbol{\beta})^{2}+\lambda\boldsymbol{\beta}^{\intercal}\boldsymbol{\beta}\right],\label{eq:ridgereg}$$
-where $\boldsymbol{\beta}$ is the parameter vector (regression
-coefficients) and $\lambda$ is a tuning parameter that penalizes
-$\boldsymbol{\beta}$'s that are "too large". It can be shown that the
-solution to ridge regression is
-$$\hat{\boldsymbol{\beta}}=(\boldsymbol{X}^{\intercal}\boldsymbol{X}+\lambda\boldsymbol{I})^{-1}\boldsymbol{X}^{\intercal}\boldsymbol{y},\label{eq:estpar}$$
-where $\boldsymbol{X}$ is the design matrix, $\boldsymbol{y}$ is the
-response vector and $\boldsymbol{I}$ is the identity matrix of
-appropriate size.
+For responses $y_{1},\ldots,y_{n}$, vector of predictors $\boldsymbol{x}_{1},\ldots,\boldsymbol{x}_{n}$ and fixed penalization parameter $\lambda$, ridge regression solves the optimization problem $$\hat{\boldsymbol{\beta}}=\underset{\boldsymbol{\beta}}{\arg\min}\left[\sum_{i=1}^{n}(y_{i}-\boldsymbol{x}_{i}^{\intercal}\boldsymbol{\beta})^{2}+\lambda\boldsymbol{\beta}^{\intercal}\boldsymbol{\beta}\right],\label{eq:ridgereg}$$ where $\boldsymbol{\beta}$ is the parameter vector (regression coefficients) and $\lambda$ is a tuning parameter that penalizes $\boldsymbol{\beta}$'s that are "too large". It can be shown that the solution to ridge regression is $$\hat{\boldsymbol{\beta}}=(\boldsymbol{X}^{\intercal}\boldsymbol{X}+\lambda\boldsymbol{I})^{-1}\boldsymbol{X}^{\intercal}\boldsymbol{y},\label{eq:estpar}$$ where $\boldsymbol{X}$ is the design matrix, $\boldsymbol{y}$ is the response vector and $\boldsymbol{I}$ is the identity matrix of appropriate size.
 
 ## Q2
 
-What is the value of $\lambda$ for the regression
-considered in **Q1**? As $\lambda\to\infty$, what is the behaviour
-of the vector $\hat{\boldsymbol{\beta}}$ (the ridge regression estimator)?\
+What is the value of $\lambda$ for the regression considered in **Q1**? As $\lambda\to\infty$, what is the behaviour of the vector $\hat{\boldsymbol{\beta}}$ (the ridge regression estimator)?\
 
 ::: {.solbox data-latex=""}
 Your answer
 :::
 
+Now, we perform ridge regression using the function `glmnet` in the package of the same name.Load the package using `library(glmnet)`. Read the documentation of the function by typing `?glmnet` in the console. We are interested in these four arguments of the function: `x`, `y`, `alpha` and `lambda`.
 
-Now, we perform ridge regression using the function `glmnet` in the
-package of the same name.Load the package using
-`library(glmnet)`. Read the documentation of the function by typing
-`?glmnet` in the console. We are interested in these four arguments of
-the function: `x`, `y`, `alpha` and `lambda`.
-
-We consider the sequence of penalties
-$\boldsymbol{\lambda}=(e^{-3},e^{-2.8},e^{-2.6},\ldots,e^{2.6},e^{2.8},e^{3})$.
-Create this vector of length 31 and store it as variable `lam`. Fit the
-series of ridge regressions to the data set. You will need to use the
-following command:
+We consider the sequence of penalties $\boldsymbol{\lambda}=(e^{-3},e^{-2.8},e^{-2.6},\ldots,e^{2.6},e^{2.8},e^{3})$. Create this vector of length 31 and store it as variable `lam`. Fit the series of ridge regressions to the data set. You will need to use the following command:
 
 ```{r, eval = FALSE}
 fittedobject <- glmnet(x = ___, y = ___, alpha = 0, lambda = ___)
 ```
 
-where `alpha = 0` specifies the ridge regression (as opposed to other
-shrinkage methods). Replace the `___` by the appropriate variable names.
+where `alpha = 0` specifies the ridge regression (as opposed to other shrinkage methods). Replace the `___` by the appropriate variable names.
 
-**Hint**: The argument `x` accepts a matrix. You can use `as.matrix()` to
-convert a data frame to matrix. Or, combine a formula with `model.matrix()`
-like `model.matrix(y ~ var1 + var2, data = df)`. Try `?model.matrix`. Note that
-`model.matrix()` adds an intercept column, which `glmnet()` does as well, so
-you'll have to get rid of one if you go this route.
+**Hint**: The argument `x` accepts a matrix. You can use `as.matrix()` to convert a data frame to matrix. Or, combine a formula with `model.matrix()` like `model.matrix(y ~ var1 + var2, data = df)`. Try `?model.matrix`. Note that `model.matrix()` adds an intercept column, which `glmnet()` does as well, so you'll have to get rid of one if you go this route.
 
 ::: {.solbox data-latex=""}
 ```{r}
-# your code
+library(glmnet)
+
+# 1) Lambda sequence: e^{-3}, e^{-2.8}, ..., e^{2.8}, e^{3}  (length = 31)
+lam <- exp(seq(-3, 3, by = 0.2))
+
+# 2) Design matrix (no intercept column because glmnet adds it)
+X <- model.matrix(lpsa ~ ., data = prostate)[, -1]
+
+# 3) Response
+y <- prostate$lpsa
+
+# 4) Fit ridge regressions across the lambda grid
+fittedobject <- glmnet(x = X, y = y, alpha = 0, lambda = lam)
+
+# (Optional) peek
+# fittedobject
+coef(fittedobject, s = lam[1])     # coefficients at the first lambda
+coef(fittedobject, s = lam[length(lam)])  # at the last lambda
+
 ```
 :::
-
 
 ## Q3
 
-Notice that the fitted `glmnet` object is a list with many components. Inspect
-it by looking in the Environmet tab, printing it, calling `names(obj)` and / or
-trying `str(obj)`. Like most modelling routines in `R`, there is a `coef()`
-method for `glmnet` objects.
+Notice that the fitted `glmnet` object is a list with many components. Inspect it by looking in the Environmet tab, printing it, calling `names(obj)` and / or trying `str(obj)`. Like most modelling routines in `R`, there is a `coef()` method for `glmnet` objects.
 
-Write down the coefficients for the predictors `lcavol`, `svi` and
-`lcp` when $\lambda=e^{3}$ and $\lambda=e^{0}$, respectively.
+Write down the coefficients for the predictors `lcavol`, `svi` and `lcp` when $\lambda=e^{3}$ and $\lambda=e^{0}$, respectively.
 
-**Hint**: `fittedobject` is a list. Variables in a list can be
-extracted using the `$` operator. For example, `fittedobject$lambda`
-gives you the $\lambda$ values used in the series of ridge
-regressions.
+**Hint**: `fittedobject` is a list. Variables in a list can be extracted using the `$` operator. For example, `fittedobject$lambda` gives you the $\lambda$ values used in the series of ridge regressions.
 
 ::: {.solbox data-latex=""}
 ```{r}
-# your code
+# coefficients at lambda = exp(3)
+coef_exp3 <- coef(fittedobject, s = exp(3))
+coef_exp3[c("lcavol", "svi", "lcp"), ]
+
+# coefficients at lambda = exp(0) = 1
+coef_exp0 <- coef(fittedobject, s = exp(0))
+coef_exp0[c("lcavol", "svi", "lcp"), ]
+
 ```
 :::
 
-
-Next, we find the optimal value of $\lambda$ (that yields the best
-predictive ability) via cross validation. The relevant function is
-`cv.glmnet()`. We will also need to use the `nfolds` argument in addition
-to those above (check the documentation of this function).
+Next, we find the optimal value of $\lambda$ (that yields the best predictive ability) via cross validation. The relevant function is `cv.glmnet()`. We will also need to use the `nfolds` argument in addition to those above (check the documentation of this function).
 
 ## Q4
 
-Carry out a 5-fold cross validation, using the same
-$\lambda$ values as above. Run `set.seed(406)` **immediately
-before** the `cv.glmnet()` function to obtain reproducible
-results. Inspect the fitted object; which variable stores the cross
-validation mean squared errors?
+Carry out a 5-fold cross validation, using the same $\lambda$ values as above. Run `set.seed(406)` **immediately before** the `cv.glmnet()` function to obtain reproducible results. Inspect the fitted object; which variable stores the cross validation mean squared errors?
 
 ::: {.solbox data-latex=""}
 ```{r}
-# your code
+library(glmnet)
+
+# same lambda grid as before
+lam <- exp(seq(-3, 3, by = 0.2))
+X <- model.matrix(lpsa ~ ., data = prostate)[, -1]
+y <- prostate$lpsa
+
+set.seed(406)
+cvfit <- cv.glmnet(
+  x = X, y = y,
+  alpha = 0,
+  lambda = lam,
+  nfolds = 5,
+  type.measure = "mse"   # explicit: MSE for gaussian
+)
+
+# The cross-validated mean squared errors (one per lambda):
+cv_mse <- cvfit$cvm
+head(cv_mse)
+
 ```
 
 Your answer
 :::
 
-
 ## Q5
 
-What is the value of $\lambda$ that minimizes the CV error and what is its
-associated mean squared error?
+What is the value of $\lambda$ that minimizes the CV error and what is its associated mean squared error?
 
-**Hint**: You can visualize the result using `plot()` on the fitted
-object in **Q4**.
+**Hint**: You can visualize the result using `plot()` on the fitted object in **Q4**.
 
 ::: {.solbox data-latex=""}
 ```{r}
-# your code
+# lambda that minimizes CV error
+best_lambda <- cvfit$lambda.min
+
+# associated CV mean squared error
+best_mse <- min(cvfit$cvm)
+
+best_lambda
+best_mse
+
+plot(cvfit)
+
+
 ```
 :::
-
 
 ## Q6
 
-For this (optimal) $\lambda$, what are the fitted
-coefficients for the predictors `lcavol`, `svi` and `lcp`?
+For this (optimal) $\lambda$, what are the fitted coefficients for the predictors `lcavol`, `svi` and `lcp`?
 
 ::: {.solbox data-latex=""}
 ```{r}
-# your code
+# Coefficients at optimal lambda (lambda.min)
+coef_opt <- coef(cvfit, s = cvfit$lambda.min)
+
+# Extract lcavol, svi, and lcp
+coef_opt[c("lcavol", "svi", "lcp"), ]
+
+
+coef(fittedobject, s = cvfit$lambda.min)[c("lcavol", "svi", "lcp"), ]
+
 ```
 :::
-
